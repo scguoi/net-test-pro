@@ -2,6 +2,13 @@
 name = "net-test-pro"
 version = "0.1.0"
 description = "macOS WiFi network health check CLI"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "scguoi", email = "alex89689633@gmail.com" },
+]
+keywords = ["network", "wifi", "macos", "cli", "diagnostic"]
 requires-python = ">=3.11"
 dependencies = [
     "rich>=13.7",
