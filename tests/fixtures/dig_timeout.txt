@@ -1,0 +1,5 @@
+
+; <<>> DiG 9.10.6 <<>> @203.0.113.99 github.com +time=3 +tries=1 +stats
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached
