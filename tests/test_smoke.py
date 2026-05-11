@@ -4,7 +4,7 @@ from nettest import cli
 from nettest.types import ProbeResult
 
 
-def _fake_ping(target):
+def _fake_latency(target):
     return ProbeResult(target=target, ok=True, data={
         "rtt_avg": 10.0 if "." not in target or target.startswith("2") else 150.0,
         "rtt_stddev": 1.0,
@@ -50,7 +50,7 @@ def _fake_env():
 
 
 def test_smoke_runs_end_to_end_with_fakes(monkeypatch, capsys, tmp_path):
-    monkeypatch.setattr("nettest.cli.run_ping", _fake_ping)
+    monkeypatch.setattr("nettest.cli.run_tls_latency", _fake_latency)
     monkeypatch.setattr("nettest.cli.run_dig", _fake_dig)
     monkeypatch.setattr("nettest.cli.run_traceroute", _fake_tr)
     monkeypatch.setattr("nettest.cli.run_curl", _fake_curl)
@@ -63,7 +63,7 @@ def test_smoke_runs_end_to_end_with_fakes(monkeypatch, capsys, tmp_path):
     out, err = capsys.readouterr()
     payload = json.loads(out)
     assert payload["env"]["wifi"]["ssid"] == "TestWiFi"
-    assert len(payload["ping"]) == 8
+    assert len(payload["latency"]) == 8
     assert len(payload["dns"]) == 5  # system DNS (192.168.1.1) + 4 fixed servers
     assert any(r["target"] == "192.168.1.1" for r in payload["dns"])
     assert payload["bandwidth"]["data"]["dl_mbps"] == 200

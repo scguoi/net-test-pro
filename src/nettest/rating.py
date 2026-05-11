@@ -11,16 +11,18 @@ _SEVERITY = {
 
 
 def rate_latency(avg_ms: float | None, *, region: Literal["CN", "INTL"]) -> Rating:
+    # Thresholds calibrated for TLS handshake time (≈ 1-2 RTTs), which is
+    # what the latency probe measures so it works through TUN/proxy stacks.
     if avg_ms is None:
         return Rating.BAD
     if region == "CN":
-        if avg_ms < 30: return Rating.EXCELLENT
-        if avg_ms < 80: return Rating.OK
-        if avg_ms < 150: return Rating.POOR
+        if avg_ms < 100: return Rating.EXCELLENT
+        if avg_ms < 200: return Rating.OK
+        if avg_ms < 400: return Rating.POOR
         return Rating.BAD
-    if avg_ms < 100: return Rating.EXCELLENT
-    if avg_ms < 200: return Rating.OK
-    if avg_ms < 400: return Rating.POOR
+    if avg_ms < 200: return Rating.EXCELLENT
+    if avg_ms < 400: return Rating.OK
+    if avg_ms < 800: return Rating.POOR
     return Rating.BAD
 
 

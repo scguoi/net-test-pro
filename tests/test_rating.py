@@ -9,17 +9,17 @@ from nettest.rating import (
 
 
 def test_rate_latency_domestic():
-    assert rate_latency(10, region="CN") is Rating.EXCELLENT
-    assert rate_latency(50, region="CN") is Rating.OK
-    assert rate_latency(120, region="CN") is Rating.POOR
-    assert rate_latency(200, region="CN") is Rating.BAD
+    assert rate_latency(50, region="CN") is Rating.EXCELLENT
+    assert rate_latency(150, region="CN") is Rating.OK
+    assert rate_latency(300, region="CN") is Rating.POOR
+    assert rate_latency(500, region="CN") is Rating.BAD
 
 
 def test_rate_latency_international():
-    assert rate_latency(80, region="INTL") is Rating.EXCELLENT
-    assert rate_latency(150, region="INTL") is Rating.OK
-    assert rate_latency(300, region="INTL") is Rating.POOR
-    assert rate_latency(500, region="INTL") is Rating.BAD
+    assert rate_latency(150, region="INTL") is Rating.EXCELLENT
+    assert rate_latency(300, region="INTL") is Rating.OK
+    assert rate_latency(500, region="INTL") is Rating.POOR
+    assert rate_latency(1000, region="INTL") is Rating.BAD
 
 
 def test_rate_latency_none_is_bad():

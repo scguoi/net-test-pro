@@ -25,7 +25,7 @@ def _sample_payload():
             "bandwidth": Verdict(Rating.EXCELLENT, "带宽：良好", "↓ 285 Mbps  ↑ 42 Mbps"),
         },
         "diagnostic": "当前 WiFi 各维度均良好，访问正常。",
-        "ping_results": [
+        "latency_results": [
             ProbeResult("baidu.com", True, {"rtt_avg": 8.2, "rtt_stddev": 0.4, "loss_pct": 0.0}),
             ProbeResult("google.com", True, {"rtt_avg": 185.4, "rtt_stddev": 22.5, "loss_pct": 5.0}),
         ],

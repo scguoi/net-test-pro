@@ -43,14 +43,14 @@ def _render_summary(p: dict, c: Console) -> None:
 
 
 def _render_latency(p: dict, c: Console) -> None:
-    c.rule("① 延迟 / 丢包")
+    c.rule("① 延迟 / 丢包 (TLS 443)")
     t = Table(show_header=True, header_style="bold")
     t.add_column("目标")
     t.add_column("延迟(ms)", justify="right")
     t.add_column("抖动", justify="right")
     t.add_column("丢包", justify="right")
     t.add_column("评价")
-    for r in p["ping_results"]:
+    for r in p["latency_results"]:
         d = r.data
         avg = d.get("rtt_avg")
         jit = d.get("rtt_stddev")
@@ -164,6 +164,6 @@ def _quick_latency_rating(avg: float | None, loss: float | None, target: str) ->
     if avg is None or loss is None: return "🔴 故障"
     if loss > 5: return "🔴 高丢包"
     if loss > 1: return "🟠 较差"
-    if avg < 30: return "🟢 优秀"
-    if avg < 150: return "🟡 一般"
+    if avg < 150: return "🟢 优秀"
+    if avg < 400: return "🟡 一般"
     return "🟠 较差"

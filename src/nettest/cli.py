@@ -14,7 +14,7 @@ from nettest.env import collect_environment
 from nettest.probes.bandwidth import run_networkquality
 from nettest.probes.dns import run_dig
 from nettest.probes.http import run_curl
-from nettest.probes.ping import run_ping
+from nettest.probes.latency import run_tls_latency
 from nettest.probes.traceroute import run_traceroute
 from nettest.rating import (
     Rating,
@@ -46,10 +46,10 @@ def main(argv: list[str] | None = None) -> int:
 
     progress = Console(file=sys.stderr, no_color=args.no_color)
     env = collect_environment()
-    progress.print("[1/5] 延迟测试 ...", end="\r")
-    ping_results = run_concurrent(
+    progress.print("[1/5] 延迟测试 (TLS 443) ...", end="\r")
+    latency_results = run_concurrent(
         [t.host for t in GENERAL_TARGETS],
-        run_ping,
+        run_tls_latency,
         max_workers=8,
     )
     progress.print("[2/5] DNS 解析 ...    ", end="\r")
@@ -86,7 +86,7 @@ def main(argv: list[str] | None = None) -> int:
     progress.print("                       ", end="\r")
 
     summary = _build_summary(
-        ping_results=ping_results,
+        latency_results=latency_results,
         dns_results=dns_results,
         bandwidth_result=bandwidth_result,
         system_dns_ip=system_dns_ip,
@@ -99,7 +99,7 @@ def main(argv: list[str] | None = None) -> int:
         "env": env,
         "summary": _ratings_to_str(summary),
         "diagnostic": diagnostic,
-        "ping": [_pr_to_dict(r) for r in ping_results],
+        "latency": [_pr_to_dict(r) for r in latency_results],
         "dns": [_pr_to_dict(r) for r in dns_results],
         "traceroute": [_pr_to_dict(r) for r in traceroute_results],
         "http": [_pr_to_dict(r) for r in http_results],
@@ -113,14 +113,14 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(snapshot, ensure_ascii=False, indent=2))
         return 0
 
-    verdicts = _build_verdicts(summary, ping_results, dns_results, bandwidth_result)
+    verdicts = _build_verdicts(summary, latency_results, dns_results, bandwidth_result)
 
     payload = {
         "timestamp": timestamp,
         "env": env,
         "summary_verdicts": verdicts,
         "diagnostic": diagnostic,
-        "ping_results": ping_results,
+        "latency_results": latency_results,
         "dns_results": dns_results,
         "traceroute_results": traceroute_results,
         "http_results": http_results,
@@ -137,9 +137,9 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def _build_summary(*, ping_results, dns_results, bandwidth_result, system_dns_ip: str | None = None) -> dict:
-    domestic_ping = [r for r in ping_results if r.target in {"baidu.com", "taobao.com", "qq.com", "223.5.5.5"} and r.ok]
-    intl_ping = [r for r in ping_results if r.target in {"google.com", "github.com", "cloudflare.com", "1.1.1.1"} and r.ok]
+def _build_summary(*, latency_results, dns_results, bandwidth_result, system_dns_ip: str | None = None) -> dict:
+    domestic_ping = [r for r in latency_results if r.target in {"baidu.com", "taobao.com", "qq.com", "223.5.5.5"} and r.ok]
+    intl_ping = [r for r in latency_results if r.target in {"google.com", "github.com", "cloudflare.com", "1.1.1.1"} and r.ok]
 
     def avg_or_none(values):
         clean = [v for v in values if v is not None]
@@ -150,8 +150,8 @@ def _build_summary(*, ping_results, dns_results, bandwidth_result, system_dns_ip
     intl_avg = avg_or_none([r.data.get("rtt_avg") for r in intl_ping])
     intl_loss = avg_or_none([r.data.get("loss_pct") for r in intl_ping])
 
-    google_loss = next((r.data.get("loss_pct") for r in ping_results if r.target == "google.com"), None)
-    cloudflare_loss = next((r.data.get("loss_pct") for r in ping_results if r.target == "cloudflare.com"), None)
+    google_loss = next((r.data.get("loss_pct") for r in latency_results if r.target == "google.com"), None)
+    cloudflare_loss = next((r.data.get("loss_pct") for r in latency_results if r.target == "cloudflare.com"), None)
 
     domestic_rating = worst([
         rate_latency(dom_avg, region="CN"),
@@ -196,7 +196,7 @@ def _build_summary(*, ping_results, dns_results, bandwidth_result, system_dns_ip
     }
 
 
-def _build_verdicts(summary, ping_results, dns_results, bandwidth_result):
+def _build_verdicts(summary, latency_results, dns_results, bandwidth_result):
     def fmt_ms(v): return f"{v:.0f}ms" if v is not None else "—"
     def fmt_loss(v): return f"{v:.1f}%" if v is not None else "—"
 

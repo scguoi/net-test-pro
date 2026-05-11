@@ -1,7 +1,0 @@
-PING somehost.invalid (203.0.113.99): 56 data bytes
-Request timeout for icmp_seq 0
-Request timeout for icmp_seq 1
-Request timeout for icmp_seq 2
-
---- somehost.invalid ping statistics ---
-3 packets transmitted, 0 packets received, 100.0% packet loss
