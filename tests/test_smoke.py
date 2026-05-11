@@ -64,6 +64,7 @@ def test_smoke_runs_end_to_end_with_fakes(monkeypatch, capsys, tmp_path):
     payload = json.loads(out)
     assert payload["env"]["wifi"]["ssid"] == "TestWiFi"
     assert len(payload["ping"]) == 8
-    assert len(payload["dns"]) == 4
+    assert len(payload["dns"]) == 5  # system DNS (192.168.1.1) + 4 fixed servers
+    assert any(r["target"] == "192.168.1.1" for r in payload["dns"])
     assert payload["bandwidth"]["data"]["dl_mbps"] == 200
     assert "diagnostic" in payload

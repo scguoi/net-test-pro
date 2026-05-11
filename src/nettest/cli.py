@@ -45,6 +45,7 @@ def main(argv: list[str] | None = None) -> int:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     progress = Console(file=sys.stderr, no_color=args.no_color)
+    env = collect_environment()
     progress.print("[1/5] 延迟测试 ...", end="\r")
     ping_results = run_concurrent(
         [t.host for t in GENERAL_TARGETS],
@@ -52,8 +53,15 @@ def main(argv: list[str] | None = None) -> int:
         max_workers=8,
     )
     progress.print("[2/5] DNS 解析 ...    ", end="\r")
+    system_dns_ip = (env.get("system_dns") or [None])[0]
+    dns_targets: list[tuple[str, str]] = []
+    if system_dns_ip:
+        dns_targets.append((system_dns_ip, "系统 DNS"))
+    for s in DNS_SERVERS:
+        if s.ip != system_dns_ip:
+            dns_targets.append((s.ip, s.label))
     dns_results = run_concurrent(
-        [s.ip for s in DNS_SERVERS],
+        [ip for ip, _ in dns_targets],
         lambda ip: run_dig(ip, DNS_PROBE_DOMAIN),
         max_workers=5,
     )
@@ -77,11 +85,11 @@ def main(argv: list[str] | None = None) -> int:
         bandwidth_result = run_networkquality()
     progress.print("                       ", end="\r")
 
-    env = collect_environment()
     summary = _build_summary(
         ping_results=ping_results,
         dns_results=dns_results,
         bandwidth_result=bandwidth_result,
+        system_dns_ip=system_dns_ip,
     )
     diagnostic = diagnose(summary)
 
@@ -129,7 +137,7 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def _build_summary(*, ping_results, dns_results, bandwidth_result) -> dict:
+def _build_summary(*, ping_results, dns_results, bandwidth_result, system_dns_ip: str | None = None) -> dict:
     domestic_ping = [r for r in ping_results if r.target in {"baidu.com", "taobao.com", "qq.com", "223.5.5.5"} and r.ok]
     intl_ping = [r for r in ping_results if r.target in {"google.com", "github.com", "cloudflare.com", "1.1.1.1"} and r.ok]
 
@@ -181,7 +189,10 @@ def _build_summary(*, ping_results, dns_results, bandwidth_result) -> dict:
         "dns_inconsistent": dns_inconsistent,
         "dl_mbps": bandwidth_result.data.get("dl_mbps") if bandwidth_result.ok else None,
         "ul_mbps": bandwidth_result.data.get("ul_mbps") if bandwidth_result.ok else None,
-        "system_dns_ms": next((r.data.get("query_time_ms") for r in dns_results if r.ok), None),
+        "system_dns_ms": next(
+            (r.data.get("query_time_ms") for r in dns_results if r.ok and r.target == system_dns_ip),
+            None,
+        ),
     }
 
 
@@ -203,7 +214,7 @@ def _build_verdicts(summary, ping_results, dns_results, bandwidth_result):
         "dns": Verdict(
             summary["dns_rating"],
             f"DNS：{_label(summary['dns_rating'])}",
-            f"最快 DNS {fmt_ms(summary['system_dns_ms'])}" + ("，存在不一致" if summary["dns_inconsistent"] else "，结果一致"),
+            f"系统 DNS {fmt_ms(summary['system_dns_ms'])}" + ("，存在不一致" if summary["dns_inconsistent"] else "，结果一致"),
         ),
         "bandwidth": Verdict(
             summary["bandwidth_rating"],
