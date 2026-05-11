@@ -5,13 +5,13 @@ from rich.panel import Panel
 from nettest.types import Rating, Verdict
 
 
-def render_report(payload: dict, *, console: Console | None = None) -> None:
+def render_report(payload: dict, *, console: Console | None = None, verbose: bool = False) -> None:
     console = console or Console()
     _render_header(payload, console)
     _render_summary(payload, console)
     _render_latency(payload, console)
     _render_dns(payload, console)
-    _render_traceroute(payload, console)
+    _render_traceroute(payload, console, verbose=verbose)
     _render_http(payload, console)
     _render_bandwidth(payload, console)
     _render_footer(payload, console)
@@ -84,7 +84,7 @@ def _render_dns(p: dict, c: Console) -> None:
     c.print(t)
 
 
-def _render_traceroute(p: dict, c: Console) -> None:
+def _render_traceroute(p: dict, c: Console, *, verbose: bool = False) -> None:
     c.rule("③ 路由摘要")
     t = Table(show_header=True, header_style="bold")
     t.add_column("目标")
@@ -104,6 +104,19 @@ def _render_traceroute(p: dict, c: Console) -> None:
             "🟢" if r.data.get("reached") else "🟡",
         )
     c.print(t)
+    if verbose:
+        for r in p["traceroute_results"]:
+            hops = r.data.get("hops") or []
+            c.print(f"  完整路径 → {r.target}")
+            for h in hops:
+                hop_num = h.get("hop", "?")
+                if h.get("lost"):
+                    c.print(f"    {hop_num:>3}  *  (lost)")
+                else:
+                    ip = h.get("ip") or "?"
+                    rtt = h.get("rtt_ms")
+                    rtt_str = f"{rtt} ms" if rtt is not None else "?"
+                    c.print(f"    {hop_num:>3}  {ip}  {rtt_str}")
 
 
 def _render_http(p: dict, c: Console) -> None:

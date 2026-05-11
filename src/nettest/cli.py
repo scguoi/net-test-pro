@@ -125,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.quiet:
         _render_quiet(payload, out_console)
     else:
-        render_report(payload, console=out_console)
+        render_report(payload, console=out_console, verbose=args.verbose)
     return 0
 
 

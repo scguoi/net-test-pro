@@ -63,6 +63,31 @@ def test_renders_all_sections():
     assert "正常" in out  # diagnostic
 
 
+def test_verbose_prints_full_hops():
+    from io import StringIO
+    from rich.console import Console
+    payload = _sample_payload()
+    payload["traceroute_results"][0].data["hops"] = [
+        {"hop": 1, "ip": "192.168.1.1", "rtt_ms": 2.0, "lost": False},
+        {"hop": 2, "ip": None, "rtt_ms": None, "lost": True},
+        {"hop": 3, "ip": "8.8.8.8", "rtt_ms": 15.5, "lost": False},
+    ]
+    buf = StringIO()
+    console = Console(file=buf, force_terminal=False, width=120)
+    render_report(payload, console=console, verbose=True)
+    out = buf.getvalue()
+    assert "192.168.1.1" in out
+    assert "8.8.8.8" in out
+    assert "15.5" in out
+
+    # default (non-verbose) should NOT print the per-hop list
+    buf2 = StringIO()
+    console2 = Console(file=buf2, force_terminal=False, width=120)
+    render_report(payload, console=console2, verbose=False)
+    out2 = buf2.getvalue()
+    assert "192.168.1.1" not in out2 or "完整路径" not in out2
+
+
 def test_skipped_bandwidth_renders_skipped_marker():
     payload = _sample_payload()
     payload["bandwidth_result"] = ProbeResult("networkQuality", False, error="requires macOS 12.3+")
