@@ -1,0 +1,10 @@
+PING flaky.example (198.51.100.42): 56 data bytes
+64 bytes from 198.51.100.42: icmp_seq=0 ttl=58 time=120.123 ms
+Request timeout for icmp_seq 1
+64 bytes from 198.51.100.42: icmp_seq=2 ttl=58 time=135.456 ms
+64 bytes from 198.51.100.42: icmp_seq=3 ttl=58 time=180.789 ms
+Request timeout for icmp_seq 4
+
+--- flaky.example ping statistics ---
+5 packets transmitted, 3 packets received, 40.0% packet loss
+round-trip min/avg/max/stddev = 120.123/145.456/180.789/25.678 ms
