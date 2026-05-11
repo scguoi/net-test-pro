@@ -1,0 +1,52 @@
+==== Verbose Results ====
+---
+Capacity:
+---
+   Uplink capacity: 28.006 Mbps
+      Accuracy: Medium
+      Uplink bytes transferred: 58.187 MB
+      Uplink Flow count: 16
+   Downlink capacity: 131.273 Mbps
+      Accuracy: High
+      Downlink bytes transferred: 332.191 MB
+      Downlink Flow count: 16
+---
+Latency:
+---
+   Idle Latency:
+      353 RPM (169.560 milliseconds)
+         Transport: 30000 RPM (2.000 milliseconds)
+         Security: 187 RPM (320.125 milliseconds)
+         HTTP: 321 RPM (186.554 milliseconds)
+      Accuracy: High
+   Responsiveness: Low
+      92 RPM (645.824 milliseconds)
+         Transport: 2640000 RPM (0.023 milliseconds)
+         Security: 24 RPM (2.459 seconds)
+         HTTP: 37 RPM (1.579 seconds)
+         HTTP loaded: 31 RPM (1.925 seconds)
+      Accuracy: Low
+---
+Protocols Used:
+---
+    HTTP/2: 100%
+---
+Transport-layer info:
+---
+    ECN Disabled: 100%, L4S Disabled: 100%
+---
+Other Info:
+---
+   Test Endpoint: jptyo5-edge-fx-002.aaplimg.com
+   Interface: utun8
+   Start: 2026-05-11 09:54:21.300
+   End: 2026-05-11 09:54:43.594
+   Duration: 22.29s
+   OS Version: Version 26.3.1 (Build 25D2128)
+
+==== SUMMARY ====
+Uplink capacity: 28.006 Mbps
+Downlink capacity: 131.273 Mbps
+Responsiveness: Low (645.824 milliseconds | 92 RPM)
+Idle Latency: 169.560 milliseconds | 353 RPM
+Error: Error Domain=NSURLErrorDomain Code=-1005 "The network connection was lost."

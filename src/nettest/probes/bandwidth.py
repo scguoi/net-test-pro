@@ -7,9 +7,16 @@ from nettest.types import ProbeResult
 # macOS phrasing varies across versions ("Uplink"/"Upload", "Downlink"/"Download").
 _DL_RE = re.compile(r"Down(?:link|load) capacity:\s*([\d.]+)\s*Mbps")
 _UL_RE = re.compile(r"Up(?:link|load) capacity:\s*([\d.]+)\s*Mbps")
-_RPM_RE = re.compile(r"Responsiveness:\s*(\w+)\s*\((\d+)\s*RPM\)")
-_IDLE_RE = re.compile(r"Idle Latency:\s*([\d.]+)\s*milli-seconds")
-_LOADED_RE = re.compile(r"Loaded Latency:\s*([\d.]+)\s*milli-seconds")
+# Old format (macOS 12/13): Responsiveness: Medium (920 RPM)
+# New format (macOS 15+):   Responsiveness: Low (645.824 milliseconds | 92 RPM)
+_RPM_RE = re.compile(
+    r"Responsiveness:\s*(\w+)\s*\("
+    r"(?:[\d.]+ milli(?:-seconds|seconds) \| )?(\d+)\s*RPM\)"
+)
+# Old format: Idle Latency: 12.345 milli-seconds | Loaded Latency: 38.123 milli-seconds
+# New format: Idle Latency: 169.560 milliseconds | 353 RPM
+_IDLE_RE = re.compile(r"Idle Latency:\s*([\d.]+)\s*milli(?:-seconds|seconds)")
+_LOADED_RE = re.compile(r"Loaded Latency:\s*([\d.]+)\s*milli(?:-seconds|seconds)")
 
 
 def parse_networkquality_output(stdout: str) -> dict:

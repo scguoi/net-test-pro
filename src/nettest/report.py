@@ -136,7 +136,8 @@ def _render_bandwidth(p: dict, c: Console) -> None:
         c.print(f"空载延迟：{d['idle_latency_ms']:>7.1f} ms")
     if d.get("loaded_latency_ms") is not None:
         c.print(f"负载延迟：{d['loaded_latency_ms']:>7.1f} ms")
-    c.print(f"Responsiveness (RPM)：{d.get('rpm', '—')}")
+    rpm = d.get("rpm")
+    c.print(f"Responsiveness (RPM)：{rpm if rpm is not None else '—'}")
 
 
 def _render_footer(p: dict, c: Console) -> None:

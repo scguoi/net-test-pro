@@ -159,10 +159,11 @@ def _build_summary(*, ping_results, dns_results, bandwidth_result) -> dict:
     dns_inconsistent = len(set(dns_ip_sets)) > 1
 
     if bandwidth_result.ok:
-        bw_rating = worst([
-            rate_bandwidth_down_mbps(bandwidth_result.data.get("dl_mbps")),
-            rate_rpm(bandwidth_result.data.get("rpm")),
-        ])
+        bw_ratings = [rate_bandwidth_down_mbps(bandwidth_result.data.get("dl_mbps"))]
+        rpm = bandwidth_result.data.get("rpm")
+        if rpm is not None:
+            bw_ratings.append(rate_rpm(rpm))
+        bw_rating = worst(bw_ratings)
     else:
         bw_rating = Rating.SKIPPED
 

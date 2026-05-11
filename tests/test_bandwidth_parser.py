@@ -20,3 +20,18 @@ def test_parse_missing_loaded(fixture):
     assert out["idle_latency_ms"] is None
     assert out["loaded_latency_ms"] is None
     assert out["ok"] is True
+
+
+def test_parse_macos26_verbose_format(fixture):
+    """macOS 26 (Tahoe) uses a different format:
+    SUMMARY: Responsiveness: Low (645.824 milliseconds | 92 RPM)
+    SUMMARY: Idle Latency: 169.560 milliseconds | 353 RPM
+    """
+    out = parse_networkquality_output(fixture("networkquality_macos26.txt"))
+    assert out["dl_mbps"] == 131.273
+    assert out["ul_mbps"] == 28.006
+    assert out["rpm"] == 92
+    assert out["rpm_classification"] == "Low"
+    assert out["idle_latency_ms"] == 169.560
+    assert out["loaded_latency_ms"] is None
+    assert out["ok"] is True
