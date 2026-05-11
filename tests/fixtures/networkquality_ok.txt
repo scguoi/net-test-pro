@@ -1,0 +1,7 @@
+==== SUMMARY ====
+Upload capacity: 42.123 Mbps
+Download capacity: 285.456 Mbps
+Upload flows: 16
+Download flows: 12
+Responsiveness: Medium (920 RPM)
+Idle Latency: 12.345 milli-seconds | Loaded Latency: 38.123 milli-seconds

@@ -1,0 +1,4 @@
+==== SUMMARY ====
+Uplink capacity: 12.500 Mbps
+Downlink capacity: 95.200 Mbps
+Responsiveness: Low (180 RPM)
